@@ -10,11 +10,11 @@ describe('x-recorder/xcapture', function() {
       outFile = __dirname + '/files/out.mov',
       xvfb;
 
-  afterEach(function() {
+  afterEach(function(done) {
     if (fsPath.existsSync(outFile)) {
       fs.unlinkSync(outFile);
     }
-    xvfb.stop();
+    xvfb.stop(done);
   });
 
   beforeEach(function(done) {
@@ -30,8 +30,8 @@ describe('x-recorder/xcapture', function() {
   });
 
   describe('.start', function() {
-    beforeEach(function() {
-      subject.start();
+    beforeEach(function(done) {
+      subject.start(done);
     });
 
     it('should start ffmpeg progress', function(done) {
@@ -44,19 +44,37 @@ describe('x-recorder/xcapture', function() {
         expect(out).to.contain(':' + xvfb.display);
         expect(out).to.contain(subject.dimensions);
         expect(out).to.contain(subject.codec);
-        done();
+        subject.stop(function(err) {
+          if (err) {
+            done(err);
+            return;
+          }
+          expect(fsPath.existsSync(outFile)).to.be(true);
+          done(err);
+        });
       });
     });
   });
 
   describe('.stop', function() {
+    beforeEach(function(done) {
+      subject.start(done);
+    });
 
     it('should stop ffmpeg process', function(done) {
-      subject.start();
+      var stopped = false;
       subject.process.on('exit', function() {
-        done();
+        expect(fsPath.existsSync(outFile)).to.be(true);
+        if (!stopped) {
+          done(new Error('stop never completed.'));
+        } else {
+          done();
+        }
       });
-      subject.stop();
+
+      subject.stop(function(err) {
+        stopped = true;
+      });
     });
   });
 

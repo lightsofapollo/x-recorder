@@ -39,8 +39,7 @@ describe('x-recorder/xvfb', function() {
       it('should start xvfb', function(done) {
         childProcess.exec('ps -aef | grep Xvfb', function(err, out) {
           expect(out).to.contain(':' + display);
-          subject.stop();
-          done();
+          subject.stop(done);
         });
       });
     }
@@ -78,16 +77,20 @@ describe('x-recorder/xvfb', function() {
   });
 
   describe('.stop', function() {
+    var stopped = false;
 
     beforeEach(function(done) {
       subject._startXvfb(77);
-      subject._xvfbProcess.on('exit', function() {
+      subject.process.on('exit', function() {
+        stopped = true;
+      });
+      subject.stop(function() {
         done();
       });
-      subject.stop();
     });
 
     it('should terminate the xvfb process', function() {
+      expect(stopped).to.be(true);
       expect(subject.pid).to.be(null);
     });
 

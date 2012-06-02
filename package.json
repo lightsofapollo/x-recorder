@@ -1,7 +1,7 @@
 {
   "name": "x-recorder",
   "version": "0.0.1",
-  "author": "James Lal &lt;james@lightsofapollo.com&gt;",
+  "author": "James Lal <james@lightsofapollo.com>",
   "description": "",
   "main": "lib/x-recorder/index.js",
 

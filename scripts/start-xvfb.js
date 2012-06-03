@@ -18,9 +18,12 @@ module.exports = new Script({
   }
 }, function(argv) {
   var xvfb = new Recorder.Xvfb({
-    display: argv.display,
-    dimensions: argv.dimensions
+    display: argv.display
   });
+
+  if (argv.dimensions) {
+    xvfb.dimensions = argv.dimensions;
+  }
 
   xvfb.start(function(err) {
     if (err) {

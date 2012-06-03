@@ -44,6 +44,7 @@ describe('x-recorder/xvfb', function() {
       });
     }
 
+
     describe('without a display', function() {
       beforeEach(function(done) {
         subject._availableDisplay(function(err, res) {
@@ -73,6 +74,20 @@ describe('x-recorder/xvfb', function() {
 
       startsXvfbDisplay();
 
+      describe('when given display is used already', function() {
+        var second;
+        beforeEach(function() {
+          second = new Xvfb({ display: display });
+        });
+
+        it('should send an error in cb', function(done) {
+          subject.start(function(err) {
+            expect(err).to.be.a(Error);
+            done();
+          });
+        });
+      });
+
     });
   });
 
@@ -80,18 +95,19 @@ describe('x-recorder/xvfb', function() {
     var stopped = false;
 
     beforeEach(function(done) {
-      subject._startXvfb(77);
-      subject.process.on('exit', function() {
-        stopped = true;
-      });
-      subject.stop(function() {
-        done();
+      subject._startXvfb(77, function() {
+        subject.process.on('exit', function() {
+          stopped = true;
+        });
+
+        subject.stop(function() {
+          done();
+        });
       });
     });
 
     it('should terminate the xvfb process', function() {
       expect(stopped).to.be(true);
-      expect(subject.pid).to.be(null);
     });
 
   });
@@ -129,13 +145,22 @@ describe('x-recorder/xvfb', function() {
   });
 
   describe('._startXvfb', function() {
+
+    afterEach(function() {
+      subject.x11LockRoot = '/tmp/';
+      subject.process.kill();
+    });
+
+    beforeEach(function(done) {
+      subject._startXvfb(71, done);
+    });
+
     it('should start Xvfb', function(done) {
       //starts real Xvfb
-      var process = subject._startXvfb(71);
+      var process = subject.process;
       expect(process.pid).to.be.ok();
 
       childProcess.exec('ps -aef | grep Xvfb', function(err, stdout, stderr) {
-        expect(subject.pid).to.be(process.pid);
         process.kill();
         expect(stdout).to.contain('Xvfb :71 -screen 0 ' + subject.dimensions);
         done();

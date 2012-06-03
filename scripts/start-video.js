@@ -64,12 +64,12 @@ module.exports = new Script({
     capture.dimsensions = argv.dimsensions;
   }
 
-  capture.start(function(err, process) {
+  capture.start(function(err, proc) {
     if (err) {
       throw err;
     }
 
-    fs.writeFileSync(pidFile, process.pid);
+    fs.writeFileSync(pidFile, proc.pid);
     console.log(pidFile);
     process.exit(1);
   });

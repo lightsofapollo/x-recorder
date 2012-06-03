@@ -4,7 +4,7 @@ var Projstrap = require('projstrap'),
 
     //Command to run tests (change this to whatever you use)
     specHelper = __dirname + '/test/helper.js',
-    cmd = 'mocha --growl -c --reporter Spec ' + specHelper + ' ',
+    cmd = './node_modules/mocha/bin/mocha --growl -c --reporter Spec ' + specHelper + ' ',
     watchr,
     suite;
 
@@ -50,10 +50,9 @@ watchr.on('change', function(event) {
   if (!spec.isSpec && !spec.isLib) {
     return;
   }
-
   console.log('Executing:', cmd + spec.specPath);
 
-  exec(cmd + spec.specPath, function(err, stdout, stderr) {
+  exec(cmd + spec.specPath.replace('spec', 'test'), function(err, stdout, stderr) {
     if (stderr) {
       console.error(stderr);
     }

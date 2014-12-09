@@ -22,7 +22,7 @@ module.exports = new Script({
   var pidFile = argv.pid,
       pid;
 
-  if (!fsPath.existsSync(pidFile)) {
+  if (!fs.existsSync(pidFile)) {
     console.error(pidFile, 'was not found');
     process.exit(1);
   }

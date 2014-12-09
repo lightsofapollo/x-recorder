@@ -47,7 +47,7 @@ module.exports = new Script({
 
     lockFile = '/tmp/.X' + display + '-lock';
 
-    if (!fsPath.existsSync(lockFile)) {
+    if (!fs.existsSync(lockFile)) {
       console.error('There is no display running on :' + display);
       process.exit(1);
     }

@@ -1,30 +1,44 @@
 var Xvfb = requireLib('x-recorder/xvfb'),
     fs = require('fs'),
     fsPath = require('path'),
-    childProcess = require('child_process');
+    childProcess = require('child_process'),
+    tmp = require('tmp');
 
 describe('x-recorder/xvfb', function() {
 
-  var subject;
+  var subject,
+      tmpPath, 
+      doCleanup;
 
   function lockFile(file, dir) {
     if (typeof(dir) === 'undefined') {
-      dir = __dirname + '/files/';
+      dir = tmpPath;
     }
 
     var filePath = '.X' + String(file) + '-lock';
     return fsPath.join(dir, filePath);
   }
 
-  beforeEach(function() {
-    subject = new Xvfb({
-      x11LockRoot: __dirname + '/files/'
+  beforeEach(function(done) {
+    tmp.dir(function(err, path, cleanupCallback) {
+      doCleanup = cleanupCallback;
+      tmpPath = path;
+
+      subject = new Xvfb({
+        x11LockRoot: tmpPath
+      });
+      
+      done();
     });
+  });
+
+  afterEach(function() {
+    doCleanup();
   });
 
   describe('initialization', function() {
     it('should set .x11LockRoot', function() {
-      expect(subject.x11LockRoot).to.contain('files');
+      expect(subject.x11LockRoot).to.contain(tmpPath);
     });
   });
 
@@ -121,15 +135,15 @@ describe('x-recorder/xvfb', function() {
 
   describe('._availableDisplay', function() {
     var list = [1, 2, 3, 4, 5, 6, 7, 9],
-        dir = __dirname + '/files/';
+        dir = tmpPath;
 
-    after(function() {
+    afterEach(function() {
       list.forEach(function(lock) {
         fs.unlinkSync(lockFile(lock));
       });
     });
 
-    before(function() {
+    beforeEach(function() {
       list.forEach(function(lock) {
         fs.writeFileSync(lockFile(lock), lock, 'utf8');
       });

@@ -4,29 +4,26 @@
   "author": "James Lal <james@lightsofapollo.com>",
   "description": "",
   "main": "lib/x-recorder/index.js",
-
   "repository": {
     "type": "git",
     "url": "https://github.com/.git"
   },
-
   "bin": {
     "x-recorder": "./bin/x-recorder"
   },
-
   "keywords": [
     "x11 record video screenshot screencast xvfb"
   ],
-  "dependencies" : {
+  "dependencies": {
     "optimist": "~0.3"
   },
   "devDependencies": {
-    "mocha": "1.1.0",
     "expect.js": "0.1.2",
-    "projstrap": "latest"
+    "mocha": "^2.0.1",
+    "tmp": "0.0.24"
   },
   "license": "MIT",
   "engine": {
-    "node": ">=0.4"
+    "node": ">=0.10"
   }
 }

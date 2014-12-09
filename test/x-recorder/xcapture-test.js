@@ -2,30 +2,42 @@ var Capture = requireLib('x-recorder/xcapture'),
     Xvfb = requireLib('x-recorder/xvfb'),
     childProcess = require('child_process'),
     fsPath = require('path'),
-    fs = require('fs');
+    fs = require('fs'),
+    tmp = require('tmp');
 
 describe('x-recorder/xcapture', function() {
 
   var subject,
-      outFile = __dirname + '/files/out.mov',
-      xvfb;
+      outFile,
+      xvfb,
+      doCleanup;
 
   afterEach(function(done) {
-    if (fsPath.existsSync(outFile)) {
+    if (fs.existsSync(outFile)) {
       fs.unlinkSync(outFile);
     }
     xvfb.stop(done);
+    doCleanup();
   });
 
   beforeEach(function(done) {
-    xvfb = new Xvfb();
+    tmp.dir(function(err, path, cleanupCallback) {
+      doCleanup = cleanupCallback;
 
-    xvfb.start(function() {
-      subject = new Capture({
-        output: outFile,
-        display: xvfb.display
+      tmp.tmpName({ template: 'tmp-XXXXXX.mov' }, function(err, path) {
+        outFile = path;
+
+        xvfb = new Xvfb();
+
+        xvfb.start(function() {
+          subject = new Capture({
+            output: outFile,
+            display: xvfb.display
+          });
+
+          done();
+        });
       });
-      done();
     });
   });
 
@@ -49,7 +61,7 @@ describe('x-recorder/xcapture', function() {
             done(err);
             return;
           }
-          expect(fsPath.existsSync(outFile)).to.be(true);
+          expect(fs.existsSync(outFile)).to.be(true);
           done(err);
         });
       });
@@ -64,7 +76,7 @@ describe('x-recorder/xcapture', function() {
     it('should stop ffmpeg process', function(done) {
       var stopped = false;
       subject.process.on('exit', function() {
-        expect(fsPath.existsSync(outFile)).to.be(true);
+        expect(fs.existsSync(outFile)).to.be(true);
         if (!stopped) {
           done(new Error('stop never completed.'));
         } else {

@@ -23,7 +23,7 @@ module.exports = new Script({
 
   lockFile = '/tmp/.X' + display + '-lock';
 
-  if (fsPath.existsSync(lockFile)) {
+  if (fs.existsSync(lockFile)) {
     pid = fs.readFileSync(lockFile, 'utf8').trim();
     exec('kill ' + pid, function(err, stdout, stderr) {
       if (err) {
